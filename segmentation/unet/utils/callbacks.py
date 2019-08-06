@@ -262,15 +262,10 @@ class VisImage(AbstractCallback):
                     original_masks = args['mask_true'][i].to('cpu')
                     predicted_masks = args['mask_pred'][i].detach().to('cpu')
 
-                    print(original_masks.shape)
-                    print(predicted_masks.shape)
-
                     original_masks_by_one_image = torch.cat(
                         tuple(original_masks[ch] for ch in range(4)),
                         dim=0
                     )
-
-                    print(original_masks_by_one_image.shape)
 
                     predicted_masks_by_one_image = torch.cat(
                         tuple(predicted_masks[ch] for ch in range(4)),
@@ -284,8 +279,6 @@ class VisImage(AbstractCallback):
                         ),
                         dim=1
                     )
-
-                    print(img.shape)
 
                     self.windows[win] = self.viz.image(
                         F.interpolate(
