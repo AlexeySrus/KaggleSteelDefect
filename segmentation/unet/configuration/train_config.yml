@@ -1,0 +1,53 @@
+visualization:
+  use_visdom: True
+  visdom_port: 9000
+  visdom_server: 'http://localhost'
+
+  image:
+    every: 10
+    scale: 0.5
+
+  use_tensorboard: False
+  tensorboard_logdir: '../../../data/weights/segmentation/unet/tensorboard_log/'
+  save_historgam: False
+
+model:
+  net: 'unet'
+  image_size: None
+  input_channels: 1
+  model_classes: 4
+
+dataset:
+  train_images_path: '../../../data/dataset/train_images/'
+  train_table_path: '../../../data/dataset/train.csv'
+  test_images_path: ''
+  test_table_path: ''
+  shape: [-1, -1] #[width, height]
+  validation_part: 0.2
+
+train:
+  optimizer: 'adam'
+  lr: 0.001
+
+  loss: 'mse'
+
+  epochs: 200
+  batch_size: 1
+  number_of_processes: 1
+
+  augmentation: False
+
+  save:
+    model: '../../../data/weights/segmentation/unet/'
+    every: 10
+  load: False
+
+  checkpoint:
+    use: False
+    model: '../../../data/weights/segmentation/unet/early_model-5.trh'
+    optimizer: '../../../data/weights/segmentation/unet/early_optimize_state-5.trh'
+
+logging:
+  use_logger: False
+  log_path: '../../../data/weights/segmentation/unet/log.txt'
+  log_step: 1
