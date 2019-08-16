@@ -9,6 +9,9 @@ from torch.utils.data import Dataset
 def rle2mask(rle, height, width):
     mask = np.zeros(width * height).astype(np.uint8)
 
+    if rle == -1:
+        return mask.reshape(width, height).T
+
     array = np.asarray([int(x) for x in rle.split()])
     starts = array[0::2]
     lengths = array[1::2]
