@@ -17,4 +17,11 @@ def iou_acc(y_pred, y_true, threshold=0.5):
 
     union = torch.add(y_pred_byte, y_true_byte).sum()
     interception = torch.mul(y_pred_byte, y_true_byte).sum()
+
+    if union == 0:
+        if interception == 0:
+            return 1
+        else:
+            return 0
+
     return interception / union
