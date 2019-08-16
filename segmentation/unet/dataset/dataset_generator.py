@@ -1,29 +1,24 @@
-import cv2
 import os
 import pandas as pd
 import torch
 import numpy as np
 from PIL import Image
 from torch.utils.data import Dataset
-from tqdm import tqdm
-import random
-from torchvision.transforms import ToTensor, Normalize
 
 
-def rleToMask(rleString, height, width):
-    rows, cols = height, width
-    if rleString == -1:
-        return np.zeros((height, width))
-    else:
-        rleNumbers = [int(numstring) for numstring in rleString.split(' ')]
-        rlePairs = np.array(rleNumbers).reshape(-1,2)
-        img = np.zeros(rows*cols,dtype=np.uint8)
-        for index,length in rlePairs:
-            index -= 1
-            img[index:index+length] = 255
-            img = img.reshape(cols,rows)
-            img = img.T
-        return img
+def rle2mask(rle, height, width):
+    mask = np.zeros(width * height).astype(np.uint8)
+
+    array = np.asarray([int(x) for x in rle.split()])
+    starts = array[0::2]
+    lengths = array[1::2]
+
+    current_position = 0
+    for index, start in enumerate(starts):
+        mask[int(start):int(start + lengths[index])] = 255
+        current_position += lengths[index]
+
+    return mask.reshape(width, height).T
 
 
 class SteelDatasetGenerator(Dataset):
@@ -59,7 +54,7 @@ class SteelDatasetGenerator(Dataset):
         ).convert('LA'))[..., 0].astype(np.float32) / 255.0
 
         channels = np.array([
-            rleToMask(
+            rle2mask(
                 self.channels_data[self.images_names_list[idx]][i],
                 image.shape[0],
                 image.shape[1]
