@@ -1,17 +1,14 @@
 import os
-import cv2
 import torch
 import random
 import numpy as np
 from functools import reduce
 from visdom import Visdom
 from torchvision.transforms import ToPILImage, ToTensor
-from PIL import ImageDraw
 from shutil import copyfile
 import torch.nn.functional as F
-from torch.autograd import Variable
 from tensorboardX import SummaryWriter
-import torchvision.utils as vutils
+import cv2
 
 
 def add_prefix(path, pref):
