@@ -75,8 +75,8 @@ if __name__ == '__main__':
                         label_f.write(
                             '{cls} {x} {y} {w} {h}\n'.format(
                                 cls=cls,
-                                x=rect[0] / channel_mask.shape[1],
-                                y=rect[1] / channel_mask.shape[0],
+                                x=(rect[0] + rect[2] / 2) / channel_mask.shape[1],
+                                y=(rect[1] + rect[3] / 2) / channel_mask.shape[0],
                                 w=rect[2] / channel_mask.shape[1],
                                 h=rect[3] / channel_mask.shape[0],
                             )
