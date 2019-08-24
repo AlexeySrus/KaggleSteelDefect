@@ -236,7 +236,7 @@ class AlbuNet(nn.Module):
         dec0 = self.dec0(dec1)
 
         if self.num_classes > 1:
-            x_out = F.log_softmax(self.final(dec0), dim=1)
+            x_out = F.sigmoid(self.final(dec0))
         else:
             x_out = self.final(dec0)
 

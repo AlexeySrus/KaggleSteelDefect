@@ -33,7 +33,7 @@ train:
 
   epochs: 200
   batch_size: 2
-  number_of_processes: 8
+  number_of_processes: 4
 
   augmentation: False
 
