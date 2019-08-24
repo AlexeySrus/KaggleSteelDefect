@@ -56,13 +56,19 @@ class SteelDatasetGenerator(Dataset):
             )
         ).convert('LA'))[..., 0].astype(np.float32) / 255.0
 
+        h, w = image.shape[:2]
+
+        choose_x = np.random.randint(0, w - h + 1)
+
         channels = np.array([
             rle2mask(
                 self.channels_data[self.images_names_list[idx]][i],
                 image.shape[0],
                 image.shape[1]
-            )
+            )[:, choose_x:choose_x + h]
             for i in range(1, 5)
         ]).astype(np.float32) / 255.0
+
+        image = image[:, choose_x:choose_x + h]
 
         return torch.FloatTensor(image).unsqueeze(0), torch.FloatTensor(channels)
