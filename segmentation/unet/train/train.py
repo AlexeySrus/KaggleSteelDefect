@@ -15,6 +15,7 @@ from segmentation.unet.dataset.dataset_generator import\
 from segmentation.unet.utils.losses import l2, iou_acc
 from torch.utils.data import DataLoader
 from segmentation.unet.architectures.unet_model import UNet
+from segmentation.unet.architectures.ternaus_net import UNet16
 
 
 def parse_args():
@@ -42,7 +43,8 @@ def main():
     epochs = config['train']['epochs']
 
     models = {
-        'unet': UNet
+        'unet': UNet,
+        'ternausnet16': UNet16
     }
 
     losses = {
