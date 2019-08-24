@@ -15,7 +15,7 @@ from segmentation.unet.dataset.dataset_generator import\
 from segmentation.unet.utils.losses import l2, iou_acc
 from torch.utils.data import DataLoader
 from segmentation.unet.architectures.unet_model import UNet
-from segmentation.unet.architectures.ternaus_net import UNet16
+from segmentation.unet.architectures.ternaus_net import AlbuNet, UNet16
 
 
 def parse_args():
@@ -44,7 +44,8 @@ def main():
 
     models = {
         'unet': UNet,
-        'ternausnet16': UNet16
+        'ternausnet16': UNet16,
+        'albunet': AlbuNet
     }
 
     losses = {
@@ -74,7 +75,8 @@ def main():
     model = Model(
         models[config['model']['net']](
             config['model']['input_channels'],
-            config['model']['model_classes']
+            config['model']['model_classes'],
+            is_deconv=True
         ),
         device
     )

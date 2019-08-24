@@ -8,11 +8,11 @@ visualization:
     scale: 0.5
 
   use_tensorboard: False
-  tensorboard_logdir: '../../../data/weights/segmentation/ternausnet16/tensorboard_log/'
+  tensorboard_logdir: '../../../data/weights/segmentation/albunet/tensorboard_log/'
   save_historgam: False
 
 model:
-  net: 'ternausnet16'
+  net: 'albunet'
   image_size: None
   input_channels: 1
   model_classes: 4
@@ -38,16 +38,16 @@ train:
   augmentation: False
 
   save:
-    model: '../../../data/weights/segmentation/ternausnet16/'
+    model: '../../../data/weights/segmentation/albunet/'
     every: 10
   load: False
 
   checkpoint:
     use: False
-    model: '../../../data/weights/segmentation/ternausnet16/early_model-5.trh'
-    optimizer: '../../../data/weights/segmentation/ternausnet16/early_optimize_state-5.trh'
+    model: '../../../data/weights/segmentation/albunet/early_model-5.trh'
+    optimizer: '../../../data/weights/segmentation/albunet/early_optimize_state-5.trh'
 
 logging:
   use_logger: False
-  log_path: '../../../data/weights/segmentation/ternausnet16/log.txt'
+  log_path: '../../../data/weights/segmentation/albunet/log.txt'
   log_step: 1

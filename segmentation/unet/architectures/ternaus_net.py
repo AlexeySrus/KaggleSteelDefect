@@ -164,7 +164,7 @@ class AlbuNet(nn.Module):
         Proposed by Alexander Buslaev: https://www.linkedin.com/in/al-buslaev/
         """
 
-    def __init__(self, num_classes=1, num_filters=32, pretrained=False,
+    def __init__(self, n_channels=1, num_classes=1, num_filters=32, pretrained=False,
                  is_deconv=False):
         """
         :param num_classes:
@@ -178,6 +178,7 @@ class AlbuNet(nn.Module):
         """
         super().__init__()
         self.num_classes = num_classes
+        self.n_channels = n_channels
 
         self.pool = nn.MaxPool2d(2, 2)
 
@@ -215,6 +216,9 @@ class AlbuNet(nn.Module):
         self.final = nn.Conv2d(num_filters, num_classes, kernel_size=1)
 
     def forward(self, x):
+        if self.n_channels == 1:
+            x = torch.cat((x, ) * 3, dim=1)
+
         conv1 = self.conv1(x)
         conv2 = self.conv2(conv1)
         conv3 = self.conv3(conv2)
