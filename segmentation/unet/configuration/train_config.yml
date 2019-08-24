@@ -32,8 +32,8 @@ train:
   loss: 'mse'
 
   epochs: 200
-  batch_size: 2
-  number_of_processes: 4
+  batch_size: 4
+  number_of_processes: 8
 
   augmentation: False
 
