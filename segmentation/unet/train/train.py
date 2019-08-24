@@ -52,13 +52,14 @@ def main():
         'l2': l2,
         'l1': F.l1_loss,
         'mse': F.mse_loss,
-        'bn': torch.nn.CrossEntropyLoss()
+        'bn': torch.nn.CrossEntropyLoss(),
+        'bce': torch.nn.BCEWithLogitsLoss()
     }
 
     optimizers = {
         'adam': torch.optim.Adam,
         'nadam': Nadam,
-        'sgd': torch.optim.SGD
+        'sgd': torch.optim.SGD,
     }
 
     if not os.path.isdir(config['train']['save']['model']):
