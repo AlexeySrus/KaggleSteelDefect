@@ -167,7 +167,7 @@ def main():
     optimizer = optimizers[config['train']['optimizer']](
         model.model.parameters(),
         lr=config['train']['lr'],
-        weight_decay=1E-7
+        weight_decay=config['train']['weight_decay']
     )
 
     weight_path = None
@@ -201,7 +201,8 @@ def main():
         ),
         batch_size=batch_size,
         num_workers=n_jobs,
-        shuffle=True
+        shuffle=True,
+        drop_last=True
     )
 
     validation_data = DataLoader(
