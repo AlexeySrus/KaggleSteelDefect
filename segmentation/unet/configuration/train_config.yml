@@ -8,11 +8,11 @@ visualization:
     scale: 0.5
 
   use_tensorboard: False
-  tensorboard_logdir: '../../../data/weights/segmentation/albunet/tensorboard_log/'
+  tensorboard_logdir: '../../../data/weights/segmentation/multiunet/tensorboard_log/'
   save_historgam: False
 
 model:
-  net: 'albunet'
+  net: 'multiunet'
   image_size: None
   input_channels: 1
   model_classes: 4
@@ -27,28 +27,28 @@ dataset:
 
 train:
   optimizer: 'adam'
-  lr: 0.0001
-  weight_decay: 0
+  lr: 0.001
+  weight_decay: 0.000000001
 
-  loss: 'bce'
+  loss: 'mse'
 
-  epochs: 200
-  batch_size: 16
+  epochs: 500
+  batch_size: 4
   number_of_processes: 8
 
   augmentation: False
 
   save:
-    model: '../../../data/weights/segmentation/albunet/'
+    model: '../../../data/weights/segmentation/multiunet/'
     every: 10
   load: False
 
   checkpoint:
     use: False
-    model: '../../../data/weights/segmentation/albunet/early_model-5.trh'
-    optimizer: '../../../data/weights/segmentation/albunet/early_optimize_state-5.trh'
+    model: '../../../data/weights/segmentation/multiunet/early_model-5.trh'
+    optimizer: '../../../data/weights/segmentation/multiunet/early_optimize_state-5.trh'
 
 logging:
   use_logger: False
-  log_path: '../../../data/weights/segmentation/albunet/log.txt'
+  log_path: '../../../data/weights/segmentation/multiunet/log.txt'
   log_step: 1

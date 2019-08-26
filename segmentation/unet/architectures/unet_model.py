@@ -32,3 +32,20 @@ class UNet(nn.Module):
         x = self.up4(x, x1)
         x = self.outc(x)
         return torch.sigmoid(x)
+
+
+class MultiUNet(nn.Module):
+    def __init__(self, n_channels, n_classes, **kwargs):
+        super(MultiUNet, self).__init__()
+        self.unet1 = UNet(n_channels, 1)
+        self.unet2 = UNet(n_channels, 1)
+        self.unet3 = UNet(n_channels, 1)
+        self.unet4 = UNet(n_channels, 1)
+
+    def forward(self, x):
+        y1 = self.unet1(x)
+        y2 = self.unet2(x)
+        y3 = self.unet3(x)
+        y4 = self.unet4(x)
+
+        return torch.cat((y1, y2, y3, y4), dim=1)

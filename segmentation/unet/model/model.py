@@ -175,18 +175,55 @@ class Model:
         return test_loss, test_acc
 
     def predict(self,
-                image_loader,
+                full_images_tensor,
+                threshold=0.5,
+                stride=127,
                 verbose=False):
         """
         Model prediction
         Args:
-            image: image dataset
+            full_images_tensor: full images tensor
 
         Returns:
-            numpy array with shape (images count, 6)
+            numpy array with 4 masks
 
         """
-        raise RuntimeError("Don\'t implement predict model method")
+        full_images_tensor = full_images_tensor.to('cuda')
+
+        i = 0
+        h, w = full_images_tensor.shape[-2:]
+
+        predicts = []
+
+        while i + h <= w:
+            crop_tensor = full_images_tensor[:, :, :, i:i + h]
+
+            predict = self.model(crop_tensor)
+
+            predicts.append(
+                {
+                    'x_offset': i,
+                    'predict': predict.detach() > threshold
+                }
+            )
+
+            i += stride
+
+        predicted_tensor = torch.zeros(
+            size=(
+                full_images_tensor.shape[0],
+                4,
+                *full_images_tensor.shape[-2:]
+            ),
+            dtype=predicts[0]['predict'].dtype
+        ).to(self.device)
+
+        for pred in predicts:
+            predicted_tensor[
+                :, :, :, pred['x_offset']:pred['x_offset'] + h
+            ] += pred['predict']
+
+        return predicted_tensor
 
     def set_callbacks(self, callbacks_list):
         self.callbacks = callbacks_list

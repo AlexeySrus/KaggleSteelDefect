@@ -14,7 +14,7 @@ from segmentation.unet.dataset.dataset_generator import\
     SteelDatasetGenerator
 from segmentation.unet.utils.losses import l2, iou_acc
 from torch.utils.data import DataLoader
-from segmentation.unet.architectures.unet_model import UNet
+from segmentation.unet.architectures.unet_model import UNet, MultiUNet
 from segmentation.unet.architectures.ternaus_net import AlbuNet, UNet16
 
 
@@ -44,6 +44,7 @@ def main():
 
     models = {
         'unet': UNet,
+        'multiunet': MultiUNet,
         'ternausnet16': UNet16,
         'albunet': AlbuNet
     }
