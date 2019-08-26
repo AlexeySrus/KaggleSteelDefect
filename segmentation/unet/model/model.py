@@ -28,7 +28,8 @@ class Model:
             verbose=False,
             init_start_epoch=1,
             acc_f=acc_function,
-            loss_weights=(1.0, 1.0)):
+            loss_weights=(1.0, 1.0),
+            is_epoch_scheduler=True):
         """
         Model train method
         Args:
@@ -56,7 +57,7 @@ class Model:
             avg_epoch_loss = 0
             avg_epoch_acc = 0
 
-            if scheduler is not None:
+            if scheduler is not None and is_epoch_scheduler:
                 scheduler.step(epoch)
 
             self.last_n = epoch
@@ -119,6 +120,9 @@ class Model:
                     validation_loader, loss_function, verbose, acc_f
                 )
                 self.model.train()
+
+                if scheduler is not None and not is_epoch_scheduler:
+                    scheduler.step(test_loss)
 
             for cb in self.callbacks:
                 cb.per_epoch({

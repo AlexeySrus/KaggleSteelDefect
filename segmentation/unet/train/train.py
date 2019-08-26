@@ -182,7 +182,10 @@ def main():
 
         )
 
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        verbose=True
+    )
 
     weight_path = None
     optim_path = None
@@ -237,7 +240,8 @@ def main():
         losses[config['train']['loss']],
         init_start_epoch=start_epoch + 1,
         validation_loader=validation_data,
-        acc_f=iou_acc
+        acc_f=iou_acc,
+        is_epoch_scheduler=False
     )
 
 

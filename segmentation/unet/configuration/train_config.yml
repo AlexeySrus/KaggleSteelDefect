@@ -30,7 +30,7 @@ train:
   lr: 0.1
   weight_decay: 0.000000001
 
-  loss: 'bce'
+  loss: 'mse'
 
   epochs: 500
   batch_size: 4
