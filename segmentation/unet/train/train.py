@@ -165,11 +165,24 @@ def main():
     model.set_callbacks(callbacks)
 
     start_epoch = 0
-    optimizer = optimizers[config['train']['optimizer']](
-        model.model.parameters(),
-        lr=config['train']['lr'],
-        weight_decay=config['train']['weight_decay']
-    )
+
+    if config['train']['optimizer'] != 'sgd':
+        optimizer = optimizers[config['train']['optimizer']](
+            model.model.parameters(),
+            lr=config['train']['lr'],
+            weight_decay=config['train']['weight_decay']
+        )
+    else:
+        optimizer = torch.optim.SGD(
+            model.model.parameters(),
+            lr=config['train']['lr'],
+            weight_decay=config['train']['weight_decay'],
+            momentum=0.9,
+            nesterov=True
+
+        )
+
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer)
 
     weight_path = None
     optim_path = None
@@ -219,7 +232,7 @@ def main():
 
     model.fit(
         train_data,
-        optimizer,
+        (optimizer, scheduler),
         epochs,
         losses[config['train']['loss']],
         init_start_epoch=start_epoch + 1,

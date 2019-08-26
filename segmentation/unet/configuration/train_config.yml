@@ -26,11 +26,11 @@ dataset:
   validation_part: 0.2
 
 train:
-  optimizer: 'adam'
-  lr: 0.001
+  optimizer: 'sgd'
+  lr: 0.1
   weight_decay: 0.000000001
 
-  loss: 'mse'
+  loss: 'bce'
 
   epochs: 500
   batch_size: 4

@@ -11,7 +11,7 @@ def acc(y_pred, y_true):
     ) / y_true.size(0)
 
 
-def iou_acc(y_pred, y_true, threshold=0.5):
+def iou_acc(y_pred, y_true, threshold=0.02):
     y_pred_byte = y_pred > threshold
     y_true_byte = y_true > threshold
 
