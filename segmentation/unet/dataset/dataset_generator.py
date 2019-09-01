@@ -41,9 +41,9 @@ class SteelDatasetGenerator(Dataset):
         self.dataset_path = dataset_path
 
         self.images_names_list = \
-            self.images_names_list[:-int(len(self.images_names_list) * validation_part)] \
+            self.images_names_list[-int(len(self.images_names_list) * validation_part):] \
             if validation else \
-            self.images_names_list[-int(len(self.images_names_list) * validation_part):]
+            self.images_names_list[:-int(len(self.images_names_list) * validation_part)]
 
     def __len__(self):
         return len(self.images_names_list)

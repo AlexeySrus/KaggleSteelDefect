@@ -8,7 +8,6 @@ from torchvision.transforms import ToPILImage, ToTensor
 from shutil import copyfile
 import torch.nn.functional as F
 from tensorboardX import SummaryWriter
-import cv2
 
 
 def add_prefix(path, pref):
@@ -138,18 +137,32 @@ class SaveOptimizerPerEpoch(AbstractCallback):
 
     def per_epoch(self, args):
         if args['n'] % self.step == 0:
-            torch.save(args['optimize_state'], (
+            torch.save(args['generator_optimize_state'], (
                 os.path.join(
                     self.path,
-                    'optimize_state-{}.trh'.format(args['n'])
+                    'generator_optimize_state-{}.trh'.format(args['n'])
+                )
+            ))
+
+            torch.save(args['discriminator_optimize_state'], (
+                os.path.join(
+                    self.path,
+                    'discriminator_optimize_state-{}.trh'.format(args['n'])
                 )
             ))
 
     def early_stopping(self, args):
-        torch.save(args['optimize_state'], (
+        torch.save(args['generator_optimize_state'], (
             os.path.join(
                 self.path,
-                'early_optimize_state-{}.trh'.format(args['n'])
+                'generator_early_optimize_state-{}.trh'.format(args['n'])
+            )
+        ))
+
+        torch.save(args['discriminator_optimize_state'], (
+            os.path.join(
+                self.path,
+                'discriminator_early_optimize_state-{}.trh'.format(args['n'])
             )
         ))
 

@@ -8,14 +8,14 @@ visualization:
     scale: 0.5
 
   use_tensorboard: False
-  tensorboard_logdir: '../../../data/weights/segmentation/multiunet/tensorboard_log/'
+  tensorboard_logdir: '../../../data/weights/generation/gan1/tensorboard_log/'
   save_historgam: False
 
 model:
-  net: 'multiunet'
   image_size: None
   input_channels: 1
   model_classes: 4
+  features_map_size: 64
 
 dataset:
   train_images_path: '../../../data/dataset/train_images/'
@@ -26,29 +26,29 @@ dataset:
   validation_part: 0.2
 
 train:
-  optimizer: 'sgd'
-  lr: 0.1
+  optimizer: 'adam'
+  lr: 0.001
   weight_decay: 0.000000001
 
-  loss: 'mse'
+  loss: 'bce'
 
   epochs: 500
-  batch_size: 4
+  batch_size: 16
   number_of_processes: 8
 
   augmentation: False
 
   save:
-    model: '../../../data/weights/segmentation/multiunet/'
+    model: '../../../data/weights/generation/gan1/'
     every: 10
   load: False
 
   checkpoint:
     use: False
-    model: '../../../data/weights/segmentation/multiunet/early_model-5.trh'
-    optimizer: '../../../data/weights/segmentation/multiunet/early_optimize_state-5.trh'
+    model: '../../../data/weights/generation/gan1/early_model-5.trh'
+    optimizer: '../../../data/weights/generation/gan1/early_optimize_state-5.trh'
 
 logging:
   use_logger: False
-  log_path: '../../../data/weights/segmentation/multiunet/log.txt'
+  log_path: '../../../data/weights/generation/gan1/log.txt'
   log_step: 1

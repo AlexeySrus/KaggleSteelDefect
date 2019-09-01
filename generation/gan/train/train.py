@@ -4,18 +4,17 @@ import os
 import yaml
 from shutil import copyfile
 import torch.nn.functional as F
-from segmentation.unet.utils.optimizers import Nadam
-from segmentation.unet.model.model import Model, get_last_epoch_weights_path
-from segmentation.unet.utils.callbacks import (SaveModelPerEpoch, VisPlot,
+from generation.gan.utils.optimizers import Nadam
+from generation.gan.model.model import Model, get_last_epoch_weights_path
+from generation.gan.utils.callbacks import (SaveModelPerEpoch, VisPlot,
                                       SaveOptimizerPerEpoch,
                                                   VisImage, ModelLogging,
                                                   TensorboardPlotCallback)
-from segmentation.unet.dataset.dataset_generator import\
+from generation.gan.dataset.dataset_generator import\
     SteelDatasetGenerator
-from segmentation.unet.utils.losses import l2, iou_acc
+from generation.gan.utils.losses import l2, iou_acc
 from torch.utils.data import DataLoader
-from segmentation.unet.architectures.unet_model import UNet, MultiUNet
-from segmentation.unet.architectures.ternaus_net import AlbuNet, UNet16
+from generation.gan.achitectures.gan import Generator, Discriminator
 
 
 def parse_args():
@@ -42,13 +41,6 @@ def main():
     n_jobs = config['train']['number_of_processes']
     epochs = config['train']['epochs']
 
-    models = {
-        'unet': UNet,
-        'multiunet': MultiUNet,
-        'ternausnet16': UNet16,
-        'albunet': AlbuNet
-    }
-
     losses = {
         'l2': l2,
         'l1': F.l1_loss,
@@ -74,14 +66,17 @@ def main():
         )
     )
 
-    model = Model(
-        models[config['model']['net']](
-            config['model']['input_channels'],
-            config['model']['model_classes'],
-            is_deconv=True
-        ),
-        device
+    generator_model = Generator(
+        config['model']['input_channels'],
+        config['model']['model_classes'],
     )
+
+    discriminator_model = Discriminator(
+        config['model']['model_classes'],
+        config['model']['features_map_size']
+    )
+
+    model = Model(generator_model, discriminator_model, device)
 
     callbacks = []
 
@@ -167,14 +162,24 @@ def main():
     start_epoch = 0
 
     if config['train']['optimizer'] != 'sgd':
-        optimizer = optimizers[config['train']['optimizer']](
-            model.model.parameters(),
+        generator_optimizer = optimizers[config['train']['optimizer']](
+            model.generator_model.parameters(),
+            lr=config['train']['lr'],
+            weight_decay=config['train']['weight_decay']
+        )
+        discriminator_optimizer = optimizers[config['train']['optimizer']](
+            model.discriminator_model.parameters(),
             lr=config['train']['lr'],
             weight_decay=config['train']['weight_decay']
         )
     else:
-        optimizer = torch.optim.SGD(
-            model.model.parameters(),
+        generator_optimizer = optimizers[config['train']['optimizer']](
+            model.generator_model.parameters(),
+            lr=config['train']['lr'],
+            weight_decay=config['train']['weight_decay']
+        )
+        discriminator_optimizer = torch.optim.SGD(
+            model.discriminator_model.parameters(),
             lr=config['train']['lr'],
             weight_decay=config['train']['weight_decay'],
             momentum=0.9,
@@ -182,10 +187,10 @@ def main():
 
         )
 
-    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-        optimizer,
-        verbose=True
-    )
+    # scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+    #     optimizer,
+    #     verbose=True
+    # )
 
     weight_path = None
     optim_path = None
@@ -206,8 +211,12 @@ def main():
 
     if weight_path is not None:
         model.load(weight_path)
-        optimizer.load_state_dict(torch.load(optim_path,
-                                             map_location='cpu'))
+        generator_optimizer.load_state_dict(
+            torch.load(optim_path, map_location='cpu')
+        )
+        discriminator_optimizer.load_state_dict(
+            torch.load(optim_path, map_location='cpu')
+        )
 
     train_data = DataLoader(
         SteelDatasetGenerator(
@@ -235,7 +244,8 @@ def main():
 
     model.fit(
         train_data,
-        (optimizer, scheduler),
+        generator_optimizer,
+        discriminator_optimizer,
         epochs,
         losses[config['train']['loss']],
         init_start_epoch=start_epoch + 1,

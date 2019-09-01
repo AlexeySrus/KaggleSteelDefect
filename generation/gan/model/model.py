@@ -2,8 +2,9 @@ import torch
 import tqdm
 import os
 import re
-from segmentation.unet.utils.losses import l2
-from segmentation.unet.utils.losses import acc as acc_function
+from generation.gan.utils.losses import l2
+from generation.gan.utils.losses import acc as acc_function
+from generation.gan.utils.callbacks import add_prefix
 
 
 def get_lr(optimizer):
@@ -22,7 +23,8 @@ class Model:
         self.discriminator_model = discriminator_net.to(self.device)
         self.callbacks = [] if callbacks_list is None else callbacks_list
         self.last_n = 0
-        self.last_optimiser_state = None
+        self.last_discriminator_optimiser_state = None
+        self.last_generator_optimiser_state = None
 
     def fit(self,
             train_loader,
@@ -41,6 +43,7 @@ class Model:
         Args:
             train_loader: DataLoader
             generator_optimizer: optimizer from torch.optim with initialized parameters
+            or tuple of (optimizer, scheduler)
             discriminator_optimizer: optimizer from torch.optim with initialized parameters
             or tuple of (optimizer, scheduler)
             epochs: epochs count
@@ -49,7 +52,8 @@ class Model:
             verbose: print evaluate validation prediction
             init_start_epoch: start epochs number
             acc_f: function which evaluate accuracy rate,
-            loss_weights: tuple with losses weights between discriminator loss after generation and MSE loss between input image and generated
+            generaror_loss_weights: tuple with losses weights between discriminator loss after generation and MSE loss between input image and generated
+            is_epoch_scheduler: set True if lr scheduler work by epoch number
         Returns:
         """
         fake_label = 0
@@ -166,6 +170,10 @@ class Model:
                             'model': self,
                             'loss': discriminator_total_loss.item(
                             ) / y_true.size(0),
+                            'fake_loss': discriminator_loss_on_fake.item(
+                            ) / y_true.size(0),
+                            'real_loss': discriminator_loss_on_real.item(
+                            ) / y_true.size(0),
                             'n': (epoch - 1) * batches_count + i + 1,
                             'img': x,
                             'acc': acc,
@@ -180,9 +188,12 @@ class Model:
 
             if validation_loader is not None:
                 test_loss, test_acc = self.evaluate(
-                    validation_loader, loss_function, verbose, acc_f
+                    validation_loader,
+                    torch.nn.functional.mse_loss,
+                    verbose,
+                    acc_f
                 )
-                self.model.train()
+                self.generator_model.train()
 
                 if generator_scheduler is not None and not is_epoch_scheduler:
                     generator_scheduler.step(test_loss)
@@ -198,7 +209,10 @@ class Model:
                     'acc': avg_epoch_acc,
                     'val acc': test_acc,
                     'n': epoch,
-                    'optimize_state': optimizer.state_dict()
+                    'generator_optimize_state':
+                        generator_optimizer.state_dict(),
+                    'discriminator_optimize_state':
+                        discriminator_optimizer.state_dict()
                 })
 
     def evaluate(self,
@@ -212,11 +226,11 @@ class Model:
             test_loader: DataLoader
             loss_function: loss function
             verbose: print progress
-
+            acc_f: accuracy function
         Returns:
 
         """
-        self.model.eval()
+        self.generator_model.eval()
 
         test_loss = 0
         test_acc = 0
@@ -227,7 +241,7 @@ class Model:
                 img = _img.to(self.device)
                 y_true = _y_true.to(self.device)
 
-                y_pred = self.model(img)
+                y_pred = self.generator_model(img)
 
                 loss = loss_function(
                     y_pred,
@@ -300,16 +314,61 @@ class Model:
         self.callbacks = callbacks_list
 
     def save(self, path):
-        torch.save(self.model.cpu().state_dict(), path)
-        self.model = self.model.to(self.device)
+        torch.save(
+            self.generator_model.cpu().state_dict(),
+            add_prefix(path, 'generator_')
+        )
+        self.generator_model = self.generator_model.to(self.device)
+
+        torch.save(
+            self.discriminator_model.cpu().state_dict(),
+            add_prefix(path, 'discriminator_')
+        )
+        self.discriminator_model = self.discriminator_model.to(self.device)
 
     def load(self, path, as_dict=False):
+        """
+        Load generator and discriminator weights by common path
+        Args:
+            path: path by template {path}/model-{N}.trh and load two models by
+            paths {path}/generator_model-{N}.trh and
+            {path}/discriminator_model-{N}.trh
+            as_dict: load as dictionary
+
+        Returns:
+        """
         if not as_dict:
-            self.model.load_state_dict(torch.load(path, map_location='cpu'))
+            self.generator_model.load_state_dict(
+                torch.load(
+                    add_prefix(path, 'generator_'),
+                    map_location='cpu'
+                )
+            )
+            self.discriminator_model.load_state_dict(
+                torch.load(
+                    add_prefix(path, 'discriminator_'),
+                    map_location='cpu'
+                )
+            )
         else:
-            self.model.load_state_dict(torch.load(path, map_location='cpu')['model_state'])
-        self.model.eval()
-        self.model = self.model.to(self.device)
+            self.generator_model.load_state_dict(
+                torch.load(
+                    add_prefix(path, 'generator_'),
+                    map_location='cpu'
+                )['model_state']
+            )
+            self.discriminator_model.load_state_dict(
+                torch.load(
+                    add_prefix(path, 'discriminator_'),
+                    map_location='cpu'
+                )['model_state']
+            )
+
+        self.generator_model.eval()
+        self.generator_model = self.generator_model.to(self.device)
+
+        self.discriminator_model.eval()
+        self.discriminator_model = self.discriminator_model.to(self.device)
 
     def __del__(self):
         for cb in self.callbacks:
@@ -317,7 +376,10 @@ class Model:
                 {
                     'model': self,
                     'n': self.last_n,
-                    'optimize_state': self.last_optimiser_state
+                    'generator_optimize_state':
+                        self.last_generator_optimiser_state,
+                    'discriminator_optimize_state':
+                        self.last_discriminator_optimiser_state
                 }
             )
 
