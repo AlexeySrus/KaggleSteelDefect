@@ -5,17 +5,18 @@ visualization:
 
   image:
     every: 10
-    scale: 0.5
+    scale: 1
 
   use_tensorboard: False
   tensorboard_logdir: '../../../data/weights/generation/gan1/tensorboard_log/'
   save_historgam: False
 
 model:
+  use_spectral_normalization: True
   image_size: None
   input_channels: 1
-  model_classes: 4
-  features_map_size: 64
+  model_classes: 1
+  features_map_size: 256
 
 dataset:
   train_images_path: '../../../data/dataset/train_images/'
@@ -23,17 +24,17 @@ dataset:
   test_images_path: ''
   test_table_path: ''
   shape: [-1, -1] #[width, height]
-  validation_part: 0.2
+  validation_part: 0.1
 
 train:
   optimizer: 'adam'
-  lr: 0.001
+  lr: 0.0001
   weight_decay: 0.000000001
 
   loss: 'bce'
 
   epochs: 500
-  batch_size: 16
+  batch_size: 8
   number_of_processes: 8
 
   augmentation: False

@@ -17,6 +17,7 @@ class Model:
                  generator_net,
                  discriminator_net,
                  device='cpu',
+                 use_spectral_normalization=False,
                  callbacks_list=None):
         self.device = torch.device('cpu' if device == 'cpu' else 'cuda')
         self.generator_model = generator_net.to(self.device)
@@ -25,6 +26,10 @@ class Model:
         self.last_n = 0
         self.last_discriminator_optimiser_state = None
         self.last_generator_optimiser_state = None
+        self.use_spectral_normalization = use_spectral_normalization
+
+        self.generator_model.apply(self.weights_init)
+        self.discriminator_model.apply(self.weights_init)
 
     def fit(self,
             train_loader,
@@ -180,6 +185,11 @@ class Model:
                             'mask_true': y_true,
                             'mask_pred': generated_data.detach()
                         })
+
+                    # if self.use_spectral_normalization:
+                    #     self.discriminator_model = torch.nn.utils.spectral_norm(
+                    #         self.discriminator_model
+                    #     )
 
                     pbar.update(1)
 
@@ -382,6 +392,15 @@ class Model:
                         self.last_discriminator_optimiser_state
                 }
             )
+
+    @staticmethod
+    def weights_init(m):
+        classname = m.__class__.__name__
+        if classname.find('Conv') != -1:
+            torch.nn.init.normal_(m.weight.data, 0.0, 0.02)
+        elif classname.find('BatchNorm') != -1:
+            torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
+            torch.nn.init.constant_(m.bias.data, 0)
 
 
 def get_last_epoch_weights_path(checkpoints_dir, log=None):

@@ -71,4 +71,4 @@ class SteelDatasetGenerator(Dataset):
 
         image = image[:, choose_x:choose_x + h]
 
-        return torch.FloatTensor(image).unsqueeze(0), torch.FloatTensor(channels)
+        return torch.FloatTensor(image).unsqueeze(0), torch.FloatTensor(channels)[2].unsqueeze(0)

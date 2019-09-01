@@ -76,7 +76,12 @@ def main():
         config['model']['features_map_size']
     )
 
-    model = Model(generator_model, discriminator_model, device)
+    model = Model(
+        generator_model,
+        discriminator_model,
+        device,
+        use_spectral_normalization=config['model']['use_spectral_normalization']
+    )
 
     callbacks = []
 
