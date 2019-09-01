@@ -69,11 +69,12 @@ def main():
     generator_model = Generator(
         config['model']['input_channels'],
         config['model']['model_classes'],
+        config['model']['discriminator_features_map_size']
     )
 
     discriminator_model = Discriminator(
         config['model']['model_classes'],
-        config['model']['features_map_size']
+        config['model']['generator_features_map_size']
     )
 
     model = Model(

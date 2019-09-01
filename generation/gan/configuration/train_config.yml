@@ -16,7 +16,8 @@ model:
   image_size: None
   input_channels: 1
   model_classes: 1
-  features_map_size: 256
+  generator_features_map_size: 64
+  discriminator_features_map_size: 64
 
 dataset:
   train_images_path: '../../../data/dataset/train_images/'
@@ -34,7 +35,7 @@ train:
   loss: 'bce'
 
   epochs: 500
-  batch_size: 8
+  batch_size: 16
   number_of_processes: 8
 
   augmentation: False

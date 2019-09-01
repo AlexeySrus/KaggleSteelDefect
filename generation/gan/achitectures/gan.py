@@ -46,29 +46,28 @@ class Generator(nn.Module):
     def __init__(self, nc=1, oc=4, ngf=64):
         super(Generator, self).__init__()
         self.generation_sequence = nn.Sequential(
-            nn.Conv2d(nc, ngf * 8, 5, bias=False),
-            nn.BatchNorm2d(ngf * 8),
-            nn.ReLU(True),
-            nn.Conv2d(ngf * 8, ngf * 4, 5, padding=3, bias=False),
-            nn.BatchNorm2d(ngf * 4),
-            nn.ReLU(True),
-            nn.Conv2d(ngf * 4, ngf * 2, 5, padding=3, bias=False),
-            nn.BatchNorm2d(ngf * 2),
-            nn.ReLU(),
-            nn.Conv2d(ngf * 2, ngf, 3, padding=3, bias=False),
+            nn.Conv2d(nc, ngf, 5, bias=False),
             nn.BatchNorm2d(ngf),
             nn.ReLU(True),
-            nn.Conv2d(ngf, 32, 5, padding=3, bias=False),
+            nn.Conv2d(ngf, ngf * 2, 5, padding=3, bias=False),
+            nn.BatchNorm2d(ngf * 2),
+            nn.ReLU(True),
+            nn.Conv2d(ngf * 2, ngf * 4, 5, padding=3, bias=False),
+            nn.BatchNorm2d(ngf * 4),
+            nn.ReLU(True),
+            nn.Conv2d(ngf * 4, ngf, 3, padding=3, bias=False),
+            nn.BatchNorm2d(ngf),
+            nn.ReLU(True),
+            nn.Conv2d(ngf, 32, 5, padding=3),
             nn.BatchNorm2d(32),
             nn.ReLU(True),
-            nn.Conv2d(32, 16, 5, padding=1, bias=False),
+            nn.Conv2d(32, 16, 5, padding=1),
             nn.BatchNorm2d(16),
             nn.ReLU(True),
-            nn.Conv2d(16, 8, 3, bias=False),
+            nn.Conv2d(16, 8, 3),
             nn.BatchNorm2d(8),
             nn.ReLU(True),
-            nn.Conv2d(8, oc, 3, bias=False),
-            nn.Sigmoid()
+            nn.Conv2d(8, oc, 3)
         )
 
     def forward(self, x):
