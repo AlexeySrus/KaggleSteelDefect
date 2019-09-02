@@ -1,9 +1,9 @@
 # Data files
 data/
-yolov3/weights/
-yolov3/tensorboard_data/
-yolov3/tensorboard_logging/
-yolov3/1_road_sings/road_sings.data
+detection/yolov3/weights/
+detection/yolov3/tensorboard_data/
+detection/yolov3/tensorboard_logging/
+detection/yolov3/1_road_sings/road_sings.data
 ssd_detector/weight/
 final_models/
 
