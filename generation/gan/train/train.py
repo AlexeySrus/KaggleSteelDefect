@@ -15,6 +15,7 @@ from generation.gan.dataset.dataset_generator import\
 from generation.gan.utils.losses import l2, iou_acc
 from torch.utils.data import DataLoader
 from generation.gan.achitectures.gan import Generator, Discriminator
+from generation.gan.achitectures.autorncoder import VideoImprovingNet
 
 
 def parse_args():
@@ -66,11 +67,17 @@ def main():
         )
     )
 
-    generator_model = Generator(
-        config['model']['input_channels'],
-        config['model']['model_classes'],
-        config['model']['discriminator_features_map_size']
+    generator_model = VideoImprovingNet(
+        2,
+        True,
+        1,
+        32
     )
+    # generator_model = Generator(
+    #     config['model']['input_channels'],
+    #     config['model']['model_classes'],
+    #     config['model']['discriminator_features_map_size']
+    # )
 
     discriminator_model = Discriminator(
         config['model']['model_classes'],
@@ -123,9 +130,10 @@ def main():
                                    'Batch number',
                                    'Loss',
                                    [
-                                       '{} loss'.format(
+                                       '{} loss of step 1'.format(
+                                           config['train']['loss'].upper()),
+                                       '{} loss of step 2'.format(
                                            config['train']['loss'].upper())
-
                                    ])
 
         plots.register_scatterplot('train validation loss per_epoch',

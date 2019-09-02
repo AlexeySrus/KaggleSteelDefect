@@ -218,7 +218,8 @@ class VisPlot(AbstractCallback):
                     self.update_scatterplot(
                         win,
                         args['n'],
-                        args['loss']
+                        args['loss'],
+                        args['loss_2']
                     )
 
     def per_epoch(self, args, keyward='per_epoch'):

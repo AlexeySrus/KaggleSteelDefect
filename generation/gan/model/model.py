@@ -100,6 +100,7 @@ class Model:
                     x = _x.to(self.device)
                     y_true = _y_true.to(self.device)
 
+                    # step 1
                     discriminator_optimizer.zero_grad()
                     discriminator_output_on_real = self.discriminator_model(
                         y_true).view(-1)
@@ -134,12 +135,12 @@ class Model:
                         discriminator_output_on_fake,
                         fake_labels
                     )
-                    if generaror_loss_weights[1] > 0:
-                        discriminator_loss_on_fake *= generaror_loss_weights[0]
-                        discriminator_loss_on_fake += \
-                            torch.nn.functional.mse_loss(
-                                generated_data, y_true
-                            ) * generaror_loss_weights[1]
+                    # if generaror_loss_weights[1] > 0:
+                    #     discriminator_loss_on_fake *= generaror_loss_weights[0]
+                    #     discriminator_loss_on_fake += \
+                    #         torch.nn.functional.mse_loss(
+                    #             generated_data, y_true
+                    #         ) * generaror_loss_weights[1]
 
                     discriminator_loss_on_fake.backward()
 
@@ -153,6 +154,26 @@ class Model:
 
                     acc = (discriminator_average_output_on_fake +
                            discriminator_average_output_on_real) / 2
+
+                    # step 2
+                    generator_optimizer.zero_grad()
+                    discriminator_output_on_fake_2 = self.discriminator_model(
+                        generated_data
+                    ).view(-1)
+                    discriminator_loss_on_fake_2 = loss_function(
+                        discriminator_output_on_fake_2,
+                        real_labels
+                    )
+
+                    discriminator_loss_on_fake_2.backward()
+                    discriminator_average_output_on_fake_2 = \
+                        discriminator_output_on_fake_2.mean().item()
+
+                    generator_optimizer.step()
+
+                    acc += discriminator_average_output_on_fake_2
+                    acc /= 2
+
 
                     pbar.postfix = \
                         'Epoch: {}/{}, loss: {:.8f}, ' \
@@ -174,6 +195,8 @@ class Model:
                         cb.per_batch({
                             'model': self,
                             'loss': discriminator_total_loss.item(
+                            ) / y_true.size(0),
+                            'loss_2': discriminator_loss_on_fake_2.item(
                             ) / y_true.size(0),
                             'fake_loss': discriminator_loss_on_fake.item(
                             ) / y_true.size(0),
