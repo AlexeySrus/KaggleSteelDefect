@@ -129,9 +129,16 @@ class SegmentationTrainTransform(object):
             ) for src_mask in src_masks
         ]
 
+        used_segmentation_to_masks = [
+            src_mask.sum() > 0
+            for src_mask in src_masks
+        ]
+
         img_and_masks = [
             seq_det(image=src_img, segmentation_maps=segmap)
-            for segmap in segmaps
+            if i == 0 or used_segmentation_to_masks[i] else
+            (None, src_masks[i])
+            for i, segmap in enumerate(segmaps)
         ]
 
         img = img_and_masks[0][0]
@@ -140,7 +147,9 @@ class SegmentationTrainTransform(object):
 
         masks = np.array([
             mask.draw(size=src_img.shape[:2])[..., 0].astype(np.uint8)
-            for mask in masks
+            if used_segmentation_to_masks[i] else
+            src_masks[i]
+            for i, mask in enumerate(masks)
         ])
 
         masks_elements = masks >= 100
