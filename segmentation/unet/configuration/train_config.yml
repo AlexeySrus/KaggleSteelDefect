@@ -5,7 +5,7 @@ visualization:
 
   image:
     every: 10
-    scale: 0.5
+    scale: 1
 
   use_tensorboard: False
   tensorboard_logdir: '../../../data/weights/segmentation/multiunet/tensorboard_log/'
@@ -36,7 +36,7 @@ train:
   batch_size: 4
   number_of_processes: 8
 
-  augmentation: False
+  augmentation: True
 
   save:
     model: '../../../data/weights/segmentation/multiunet/'

@@ -67,17 +67,17 @@ def main():
         )
     )
 
-    generator_model = VideoImprovingNet(
-        2,
-        True,
-        1,
-        32
-    )
-    # generator_model = Generator(
-    #     config['model']['input_channels'],
-    #     config['model']['model_classes'],
-    #     config['model']['discriminator_features_map_size']
+    # generator_model = VideoImprovingNet(
+    #     2,
+    #     True,
+    #     1,
+    #     32
     # )
+    generator_model = Generator(
+        config['model']['input_channels'],
+        config['model']['model_classes'],
+        config['model']['discriminator_features_map_size']
+    )
 
     discriminator_model = Discriminator(
         config['model']['model_classes'],

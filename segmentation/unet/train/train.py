@@ -214,7 +214,8 @@ def main():
             dataset_path=config['dataset']['train_images_path'],
             table_path=config['dataset']['train_table_path'],
             validation=False,
-            validation_part=config['dataset']['validation_part']
+            validation_part=config['dataset']['validation_part'],
+            augmentation=config['train']['augmentation']
         ),
         batch_size=batch_size,
         num_workers=n_jobs,
