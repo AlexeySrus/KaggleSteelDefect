@@ -54,13 +54,9 @@ class SegmentationTrainTransform(object):
                                     order=iap.Choice([0, 1, 3], p=[0.15, 0.80, 0.05]),
                                     mode="reflect",
                                     name="Affine"),
-                                # iaa.PerspectiveTransform(
-                                #     scale=0.0,
-                                #     name="PerspectiveTransform"),
-                                # iaa.ElasticTransformation(
-                                #     alpha=self.x_shape[1] * 3,
-                                #     sigma=self.x_shape[1] * 0.08,
-                                #     name="ElasticTransformation"),
+                                iaa.PerspectiveTransform(
+                                    scale=0.0,
+                                    name="PerspectiveTransform"),
                                 iaa.Sometimes(
                                     p=0.1,
                                     then_list=iaa.PiecewiseAffine(
@@ -117,32 +113,7 @@ class SegmentationTrainTransform(object):
                                         per_channel=0.5,
                                         name="SaltAndPepper"))],
                             random_order=True,
-                            name="Noise"),
-                        iaa.OneOf(
-                            children=[
-                                iaa.Sometimes(
-                                    p=0.25,
-                                    then_list=iaa.BilateralBlur(
-                                        d=(2, 4),
-                                        sigma_color=(1, 250),
-                                        sigma_space=(1, 250),
-                                        name="BilateralBlur")),
-                                iaa.Sometimes(
-                                    p=0.05,
-                                    then_list=iaa.MedianBlur(
-                                        k=3,
-                                        name="MedianBlur")),
-                                iaa.Sometimes(
-                                    p=0.05,
-                                    then_list=iaa.AverageBlur(
-                                        k=(2, 4),
-                                        name="AverageBlur")),
-                                iaa.Sometimes(
-                                    p=0.5,
-                                    then_list=iaa.GaussianBlur(
-                                        sigma=(0.0, 2.0 * gaussian_blur_sigma_max),
-                                        name="GaussianBlur"))],
-                            name="Blur"),
+                            name="Noise")
                     ],
                     random_order=True,
                     name="MainProcess")])
