@@ -12,10 +12,10 @@ visualization:
   save_historgam: False
 
 model:
-  net: 'unet'
+  net: 'multiunet'
   image_size: None
   input_channels: 1
-  model_classes: 1
+  model_classes: 4
 
 dataset:
   train_images_path: '../../../data/dataset/train_images/'
@@ -26,7 +26,7 @@ dataset:
   validation_part: 0.2
 
 train:
-  optimizer: 'adam'
+  optimizer: 'sgd'
   lr: 0.001
   weight_decay: 0.000000001
 
@@ -37,7 +37,7 @@ train:
     dice_loss_coeff: 0.5
 
   epochs: 500
-  batch_size: 16
+  batch_size: 4
   number_of_processes: 8
 
   augmentation: True
