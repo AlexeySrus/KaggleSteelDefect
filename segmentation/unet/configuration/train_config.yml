@@ -12,10 +12,10 @@ visualization:
   save_historgam: False
 
 model:
-  net: 'ternausnet16'
+  net: 'unet'
   image_size: None
   input_channels: 1
-  model_classes: 4
+  model_classes: 1
 
 dataset:
   train_images_path: '../../../data/dataset/train_images/'

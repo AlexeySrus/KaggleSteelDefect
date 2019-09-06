@@ -260,12 +260,14 @@ class VisImage(AbstractCallback):
                     predicted_masks = args['mask_pred'][i].detach().to('cpu')
 
                     original_masks_by_one_image = torch.cat(
-                        tuple(original_masks[ch] for ch in range(4)),
+                        tuple(original_masks[ch]
+                              for ch in range(original_masks.size(0))),
                         dim=0
                     )
 
                     predicted_masks_by_one_image = torch.cat(
-                        tuple(predicted_masks[ch] for ch in range(4)),
+                        tuple(predicted_masks[ch]
+                              for ch in range(original_masks.size(0))),
                         dim=0
                     )
 
