@@ -1,4 +1,5 @@
 import torch
+import torch.nn.functional as F
 
 
 def l2(y_pred, y_true):
@@ -25,3 +26,26 @@ def iou_acc(y_pred, y_true, threshold=0.02):
             return 0
 
     return interception / union
+
+
+class DiceLoss(torch.nn.Module):
+    def __init__(self, base_weight=0.5, dice_weight=0.5, base_loss=F.mse_loss):
+        super(DiceLoss, self).__init__()
+
+        self.base_weight = base_weight
+        self.dice_weight = dice_weight
+
+        self.base_loss = base_loss
+
+        self.smooth = 1.0
+
+    def dice_loss(self, y_pred, y_true):
+        product = torch.mul(y_pred, y_true)
+        intersection = torch.sum(product)
+        coefficient = (2.0 * intersection + self.smooth) / (
+                    torch.sum(y_pred) + torch.sum(y_true) + self.smooth)
+        return -coefficient + 1
+
+    def forward(self, y_pred, y_true):
+        return self.base_weight * self.base_loss(y_pred, y_true) + \
+               self.dice_weight * self.dice_loss(y_pred, y_true)

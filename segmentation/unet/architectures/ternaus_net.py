@@ -331,7 +331,7 @@ class UNet16(nn.Module):
         dec1 = self.dec1(torch.cat([dec2, conv1], 1))
 
         if self.num_classes > 1:
-            x_out = F.log_softmax(self.final(dec1), dim=1)
+            x_out = F.sigmoid(self.final(dec1))
         else:
             x_out = self.final(dec1)
 

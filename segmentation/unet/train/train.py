@@ -12,7 +12,7 @@ from segmentation.unet.utils.callbacks import (SaveModelPerEpoch, VisPlot,
                                                   TensorboardPlotCallback)
 from segmentation.unet.dataset.dataset_generator import\
     SteelDatasetGenerator
-from segmentation.unet.utils.losses import l2, iou_acc
+from segmentation.unet.utils.losses import l2, iou_acc, DiceLoss
 from torch.utils.data import DataLoader
 from segmentation.unet.architectures.unet_model import UNet, MultiUNet
 from segmentation.unet.architectures.ternaus_net import AlbuNet, UNet16
@@ -236,11 +236,19 @@ def main():
         num_workers=n_jobs
     )
 
+    loss = losses[config['train']['loss']] \
+        if not config['train']['dise_loss']['use'] else \
+        DiceLoss(
+            config['train']['dise_loss']['base_loss_coeff'],
+            config['train']['dise_loss']['dice_loss_coeff'],
+            losses[config['train']['loss']]
+        )
+
     model.fit(
         train_data,
         (optimizer, scheduler),
         epochs,
-        losses[config['train']['loss']],
+        loss,
         init_start_epoch=start_epoch + 1,
         validation_loader=validation_data,
         acc_f=iou_acc,
