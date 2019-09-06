@@ -235,7 +235,7 @@ class OneClassSteelDatasetGenerator(Dataset):
         assert 1 <= class_index <= 4
 
         if preused_table is None:
-            table_data = pd.read_csv(table_path).fillna(-1).values
+            table_data = pd.read_csv(table_path).fillna(-1)
 
             self.class_index = class_index
             select_class_table = \
@@ -261,7 +261,7 @@ class OneClassSteelDatasetGenerator(Dataset):
 
             table_data = pd.concat(
                 [table_with_masks, table_without_masks]
-            ).sample(frac=1)
+            ).sample(frac=1).values
         else:
             table_data = preused_table
 
