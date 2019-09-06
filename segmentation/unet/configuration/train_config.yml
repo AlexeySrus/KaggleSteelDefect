@@ -27,7 +27,7 @@ dataset:
 
 train:
   optimizer: 'sgd'
-  lr: 0.1
+  lr: 0.0001
   weight_decay: 0.000000001
 
   loss: 'mse'
@@ -41,7 +41,9 @@ train:
   save:
     model: '../../../data/weights/segmentation/multiunet/'
     every: 10
-  load: False
+
+  load: True
+  load_optimizer: False
 
   checkpoint:
     use: False

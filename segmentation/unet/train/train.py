@@ -206,8 +206,10 @@ def main():
 
     if weight_path is not None:
         model.load(weight_path)
-        optimizer.load_state_dict(torch.load(optim_path,
-                                             map_location='cpu'))
+
+        if config['train']['load_optimizer']:
+            optimizer.load_state_dict(torch.load(optim_path,
+                                                 map_location='cpu'))
 
     train_data = DataLoader(
         SteelDatasetGenerator(
