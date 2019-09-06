@@ -223,4 +223,100 @@ class SteelDatasetGenerator(Dataset):
         ]
         image = image[:, choose_x:choose_x + h].astype(np.float32) / 255.0
 
-        return torch.FloatTensor(image).unsqueeze(0), torch.FloatTensor(channels)#[2].unsqueeze(0)
+        return torch.FloatTensor(image).unsqueeze(0), torch.FloatTensor(channels)
+
+
+class OneClassSteelDatasetGenerator(Dataset):
+    def __init__(self, dataset_path, table_path,
+                 class_index, part_without_masks_relatively_with_masks=0.5,
+                 validation=False, validation_part=0.2,
+                 augmentation=False):
+        assert 1 <= class_index <= 4
+
+        table_data = pd.read_csv(table_path).fillna(-1).values
+
+        self.class_index = class_index
+        select_class_table = \
+            table_data[[
+                '_{}'.format(class_index) in name
+                for name in table_data.loc[:, 'ImageId_ClassId'].values
+            ]]
+
+        selected_class_mask_with_data = select_class_table[
+                                            'EncodedPixels'] != -1
+        selected_class_mask_without_data = select_class_table[
+                                               'EncodedPixels'] == -1
+
+        table_with_masks = select_class_table[selected_class_mask_with_data]
+        table_without_masks = select_class_table[
+            selected_class_mask_without_data].sample(
+            int(
+                len(table_with_masks) * part_without_masks_relatively_with_masks
+            )
+        )
+
+        table_data = pd.concat([table_with_masks, table_without_masks])
+
+        self.channels_data = {}
+        for img_id_class, data in table_data:
+            img_id, channel_class = img_id_class.split('_')
+
+            if img_id not in self.channels_data.keys():
+                self.channels_data[img_id] = {}
+
+            self.channels_data[img_id][int(channel_class)] = data
+
+        self.images_names_list = list(
+            set(map(lambda x: x.split('_')[0], table_data[:, 0]))
+        )
+        self.dataset_path = dataset_path
+
+        self.images_names_list = \
+            self.images_names_list[
+                -int(len(self.images_names_list) * validation_part):] \
+            if validation else \
+            self.images_names_list[
+                :-int(len(self.images_names_list) * validation_part)]
+
+        self.augmentation = None
+        if augmentation:
+            self.augmentation = SegmentationTrainTransform()
+
+    def __len__(self):
+        return len(self.images_names_list)
+
+    def __getitem__(self, idx):
+        image = np.array(Image.open(
+            os.path.join(
+                self.dataset_path,
+                self.images_names_list[idx]
+            )
+        ).convert('LA'))[..., 0]
+
+        h, w = image.shape[:2]
+
+        choose_x = np.random.randint(0, w - h + 1)
+
+        channels = [
+            rle2mask(
+                self.channels_data[self.images_names_list[idx]][
+                    self.class_index],
+                image.shape[0],
+                image.shape[1]
+            )
+        ]
+
+        if self.augmentation is not None:
+            image, channels = self.augmentation(
+                image,
+                channels
+            )
+
+        channels = [
+            ch[:, choose_x:choose_x + h].astype(np.float32) / 255.0
+            for ch in channels
+        ]
+        image = image[:, choose_x:choose_x + h].astype(np.float32) / 255.0
+
+        return torch.FloatTensor(image).unsqueeze(0), \
+               torch.FloatTensor(channels)[0].unsqueeze(0)
