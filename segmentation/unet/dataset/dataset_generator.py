@@ -223,39 +223,49 @@ class SteelDatasetGenerator(Dataset):
         ]
         image = image[:, choose_x:choose_x + h].astype(np.float32) / 255.0
 
-        return torch.FloatTensor(image).unsqueeze(0), torch.FloatTensor(channels)
+        return torch.FloatTensor(image).unsqueeze(0), \
+               torch.FloatTensor(channels)
 
 
 class OneClassSteelDatasetGenerator(Dataset):
     def __init__(self, dataset_path, table_path,
                  class_index, part_without_masks_relatively_with_masks=0.5,
                  validation=False, validation_part=0.2,
-                 augmentation=False):
+                 augmentation=False, preused_table=None):
         assert 1 <= class_index <= 4
 
-        table_data = pd.read_csv(table_path).fillna(-1).values
+        if preused_table is None:
+            table_data = pd.read_csv(table_path).fillna(-1).values
 
-        self.class_index = class_index
-        select_class_table = \
-            table_data[[
-                '_{}'.format(class_index) in name
-                for name in table_data.loc[:, 'ImageId_ClassId'].values
-            ]]
+            self.class_index = class_index
+            select_class_table = \
+                table_data[[
+                    '_{}'.format(class_index) in name
+                    for name in table_data.loc[:, 'ImageId_ClassId'].values
+                ]]
 
-        selected_class_mask_with_data = select_class_table[
-                                            'EncodedPixels'] != -1
-        selected_class_mask_without_data = select_class_table[
-                                               'EncodedPixels'] == -1
+            selected_class_mask_with_data = select_class_table[
+                                                'EncodedPixels'] != -1
+            selected_class_mask_without_data = select_class_table[
+                                                   'EncodedPixels'] == -1
 
-        table_with_masks = select_class_table[selected_class_mask_with_data]
-        table_without_masks = select_class_table[
-            selected_class_mask_without_data].sample(
-            int(
-                len(table_with_masks) * part_without_masks_relatively_with_masks
+            table_with_masks = select_class_table[selected_class_mask_with_data]
+            table_without_masks = select_class_table[
+                selected_class_mask_without_data].sample(
+                int(
+                    len(
+                        table_with_masks
+                    ) * part_without_masks_relatively_with_masks
+                )
             )
-        )
 
-        table_data = pd.concat([table_with_masks, table_without_masks])
+            table_data = pd.concat(
+                [table_with_masks, table_without_masks]
+            ).sample(frac=1)
+        else:
+            table_data = preused_table
+
+        self.fixed_table_data = table_data
 
         self.channels_data = {}
         for img_id_class, data in table_data:

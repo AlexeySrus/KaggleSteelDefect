@@ -8,14 +8,14 @@ visualization:
     scale: 1
 
   use_tensorboard: False
-  tensorboard_logdir: '../../../data/weights/segmentation/albunet/tensorboard_log/'
+  tensorboard_logdir: '../../../data/weights/segmentation/unet/tensorboard_log/'
   save_historgam: False
 
 model:
-  net: 'multiunet'
+  net: 'unet'
   image_size: None
   input_channels: 1
-  model_classes: 4
+  model_classes: 1
 
 dataset:
   train_images_path: '../../../data/dataset/train_images/'
@@ -24,9 +24,11 @@ dataset:
   test_table_path: ''
   shape: [-1, -1] #[width, height]
   validation_part: 0.2
+  select_class: 3
+  part_without_masks_relatively_with_masks: 0.5
 
 train:
-  optimizer: 'sgd'
+  optimizer: 'adam'
   lr: 0.001
   weight_decay: 0.000000001
 
@@ -37,13 +39,13 @@ train:
     dice_loss_coeff: 0.5
 
   epochs: 500
-  batch_size: 4
+  batch_size: 16
   number_of_processes: 8
 
   augmentation: True
 
   save:
-    model: '../../../data/weights/segmentation/albunet/'
+    model: '../../../data/weights/segmentation/unet/'
     every: 10
 
   load: True
@@ -51,10 +53,10 @@ train:
 
   checkpoint:
     use: False
-    model: '../../../data/weights/segmentation/albunet/early_model-5.trh'
-    optimizer: '../../../data/weights/segmentation/albunet/early_optimize_state-5.trh'
+    model: '../../../data/weights/segmentation/unet/early_model-5.trh'
+    optimizer: '../../../data/weights/segmentation/unet/early_optimize_state-5.trh'
 
 logging:
   use_logger: False
-  log_path: '../../../data/weights/segmentation/albunet/log.txt'
+  log_path: '../../../data/weights/segmentation/unet/log.txt'
   log_step: 1

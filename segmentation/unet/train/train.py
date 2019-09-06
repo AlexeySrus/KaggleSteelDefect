@@ -11,7 +11,7 @@ from segmentation.unet.utils.callbacks import (SaveModelPerEpoch, VisPlot,
                                                   VisImage, ModelLogging,
                                                   TensorboardPlotCallback)
 from segmentation.unet.dataset.dataset_generator import\
-    SteelDatasetGenerator
+    OneClassSteelDatasetGenerator
 from segmentation.unet.utils.losses import l2, iou_acc, DiceLoss
 from torch.utils.data import DataLoader
 from segmentation.unet.architectures.unet_model import UNet, MultiUNet
@@ -211,14 +211,20 @@ def main():
             optimizer.load_state_dict(torch.load(optim_path,
                                                  map_location='cpu'))
 
-    train_data = DataLoader(
-        SteelDatasetGenerator(
+    generated_train_dataset = OneClassSteelDatasetGenerator(
             dataset_path=config['dataset']['train_images_path'],
             table_path=config['dataset']['train_table_path'],
+            class_index=config['dataset']['select_class'],
+            part_without_masks_relatively_with_masks=
+                config['dataset']['part_without_masks_relatively_with_masks'],
             validation=False,
             validation_part=config['dataset']['validation_part'],
-            augmentation=config['train']['augmentation']
-        ),
+            augmentation=config['train']['augmentation'],
+            preused_table=None
+        )
+
+    train_data = DataLoader(
+        generated_train_dataset,
         batch_size=batch_size,
         num_workers=n_jobs,
         shuffle=True,
@@ -226,11 +232,15 @@ def main():
     )
 
     validation_data = DataLoader(
-        SteelDatasetGenerator(
+        OneClassSteelDatasetGenerator(
             dataset_path=config['dataset']['train_images_path'],
             table_path=config['dataset']['train_table_path'],
+            class_index=config['dataset']['select_class'],
+            part_without_masks_relatively_with_masks=
+                config['dataset']['part_without_masks_relatively_with_masks'],
             validation=True,
-            validation_part=config['dataset']['validation_part']
+            validation_part=config['dataset']['validation_part'],
+            preused_table=generated_train_dataset.fixed_table_data
         ),
         batch_size=batch_size,
         num_workers=n_jobs
