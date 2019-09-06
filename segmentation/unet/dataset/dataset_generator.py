@@ -234,10 +234,10 @@ class OneClassSteelDatasetGenerator(Dataset):
                  augmentation=False, preused_table=None):
         assert 1 <= class_index <= 4
 
+        self.class_index = class_index
+
         if preused_table is None:
             table_data = pd.read_csv(table_path).fillna(-1)
-
-            self.class_index = class_index
             select_class_table = \
                 table_data[[
                     '_{}'.format(class_index) in name
