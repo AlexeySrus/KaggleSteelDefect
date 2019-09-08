@@ -17,7 +17,7 @@ from segmentation.unet.utils.losses import l2, iou_acc, DiceLoss
 from torch.utils.data import DataLoader
 from segmentation.unet.architectures.unet_model import UNet, MultiUNet
 from segmentation.unet.architectures.ternaus_net import AlbuNet, UNet16
-from segmentation.unet.architectures.senet import SENet
+from segmentation.unet.architectures.senet import DefSENet as SENet
 
 
 def parse_args():

@@ -267,7 +267,7 @@ class SENet(nn.Module):
         self.inplanes = inplanes
         if input_3x3:
             layer0_modules = [
-                ('conv1', nn.Conv2d(3, 64, 3, stride=2, padding=1,
+                ('conv1', nn.Conv2d(1, 64, 3, stride=2, padding=1,
                                     bias=False)),
                 ('bn1', nn.BatchNorm2d(64)),
                 ('relu1', nn.ReLU(inplace=True)),
@@ -282,7 +282,7 @@ class SENet(nn.Module):
             ]
         else:
             layer0_modules = [
-                ('conv1', nn.Conv2d(3, inplanes, kernel_size=7, stride=2,
+                ('conv1', nn.Conv2d(1, inplanes, kernel_size=7, stride=2,
                                     padding=3, bias=False)),
                 ('bn1', nn.BatchNorm2d(inplanes)),
                 ('relu1', nn.ReLU(inplace=True)),
@@ -1246,9 +1246,9 @@ class Unet(EncoderDecoder):
         self.name = 'u-{}'.format(encoder_name)
 
 
-class SENet(nn.Module):
-    def __init__(self, input_channels=1, classes=1):
-        super().__init__()
+class DefSENet(nn.Module):
+    def __init__(self, input_channels=1, classes=1, **kwargs):
+        super(DefSENet, self).__init__()
         self.model = Unet(
             'se_resnext50_32x4d',
             classes=classes,
@@ -1257,4 +1257,6 @@ class SENet(nn.Module):
         )
 
     def forward(self, x):
-        return self.model(x)
+        result = self.model(x)
+        # print('AAAAAAAAAAAAAAAA', result.shape)
+        return result
