@@ -12,7 +12,7 @@ visualization:
   save_historgam: False
 
 model:
-  net: 'albunet'
+  net: 'senet'
   image_size: None
   input_channels: 1
   model_classes: 1
@@ -40,13 +40,13 @@ train:
     dice_loss_coeff: 1
 
   epochs: 500
-  batch_size: 16
+  batch_size: 4
   number_of_processes: 8
 
   augmentation: True
 
   save:
-    model: '../../../data/weights/segmentation/albunet/'
+    model: '../../../data/weights/segmentation/senet/'
     every: 10
 
   load: False
