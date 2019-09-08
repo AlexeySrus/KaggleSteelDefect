@@ -39,6 +39,8 @@ train:
     base_loss_coeff: 0
     dice_loss_coeff: 1
 
+  acc_function: 'dice'
+
   epochs: 500
   batch_size: 4
   number_of_processes: 8

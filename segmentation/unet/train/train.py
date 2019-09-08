@@ -60,6 +60,11 @@ def main():
         'bce': torch.nn.BCEWithLogitsLoss()
     }
 
+    acc_functions = {
+        'iou': iou_acc,
+        'dice': DiceLoss(0, 1)
+    }
+
     optimizers = {
         'adam': torch.optim.Adam,
         'nadam': Nadam,
@@ -274,7 +279,7 @@ def main():
         loss,
         init_start_epoch=start_epoch + 1,
         validation_loader=validation_data,
-        acc_f=iou_acc,
+        acc_f=acc_functions[config['train']['acc_function']],
         is_epoch_scheduler=False
     )
 
