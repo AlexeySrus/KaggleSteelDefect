@@ -42,7 +42,7 @@ train:
   acc_function: 'dice'
 
   epochs: 500
-  batch_size: 4
+  batch_size: 16
   number_of_processes: 8
 
   augmentation: True
