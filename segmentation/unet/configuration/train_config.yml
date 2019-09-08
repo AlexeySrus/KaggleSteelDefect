@@ -26,10 +26,10 @@ dataset:
   shape: [-1, -1] #[width, height]
   validation_part: 0.2
   select_class: 3
-  part_without_masks_relatively_with_masks: 0.5
+  part_without_masks_relatively_with_masks: 0.1
 
 train:
-  optimizer: 'sgd'
+  optimizer: 'radam'
   lr: 0.001
   weight_decay: 0.000000001
 

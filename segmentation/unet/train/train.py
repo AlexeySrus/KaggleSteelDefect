@@ -4,7 +4,7 @@ import os
 import yaml
 from shutil import copyfile
 import torch.nn.functional as F
-from segmentation.unet.utils.optimizers import Nadam
+from segmentation.unet.utils.optimizers import Nadam, RangerAdam
 from segmentation.unet.model.model import Model, get_last_epoch_weights_path
 from segmentation.unet.utils.callbacks import (SaveModelPerEpoch, VisPlot,
                                       SaveOptimizerPerEpoch,
@@ -68,6 +68,7 @@ def main():
     optimizers = {
         'adam': torch.optim.Adam,
         'nadam': Nadam,
+        'radam': RangerAdam,
         'sgd': torch.optim.SGD,
     }
 
