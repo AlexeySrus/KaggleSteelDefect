@@ -252,7 +252,59 @@ class VisImage(AbstractCallback):
 
     def per_batch(self, args, label=1):
         if self.n % self.step == 0:
-            i = random.randint(0, args['img'].size(0) - 1)
+            # i = random.randint(0, args['img'].size(0) - 1)
+            i = (args['img'].size(0) - 1) // 2
+
+            for win in self.windows.keys():
+                if win == label:
+                    img = args['img'][i].to('cpu')
+
+                    self.windows[win] = self.viz.image(
+                        F.interpolate(
+                            img.unsqueeze(0),
+                            scale_factor=(self.scale, self.scale)
+                        ).squeeze(0),
+                        win=self.windows[win],
+                        opts=dict(title=self.title)
+                    )
+
+        self.n += 1
+        if self.n >= 1000000000:
+            self.n = 0
+
+    def per_epoch(self, args):
+        pass
+
+    def early_stopping(self, args):
+        pass
+
+    def add_window(self, label):
+        self.windows[label] = None
+
+
+class VisMasks(AbstractCallback):
+    def __init__(self, title, server='https://localhost', port=8080,
+                 vis_step=1, scale=10, use_mdn=False, coefs=30, samples=2):
+        self.viz = Visdom(server=server, port=port)
+        self.title = title + 'Image'
+        self.windows = {1: None}
+        self.n = 0
+        self.step = vis_step
+        self.scale = scale
+
+        self.to_image = ToPILImage()
+        self.to_tensor = ToTensor()
+
+        self.use_mdn = use_mdn
+        self.coefs = coefs
+        self.samples = samples
+
+        random.seed()
+
+    def per_batch(self, args, label=1):
+        if self.n % self.step == 0:
+            # i = random.randint(0, args['img'].size(0) - 1)
+            i = (args['img'].size(0) - 1) // 2
 
             for win in self.windows.keys():
                 if win == label:

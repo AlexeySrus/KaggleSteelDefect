@@ -8,7 +8,8 @@ from segmentation.unet.utils.optimizers import Nadam
 from segmentation.unet.model.model import Model, get_last_epoch_weights_path
 from segmentation.unet.utils.callbacks import (SaveModelPerEpoch, VisPlot,
                                       SaveOptimizerPerEpoch,
-                                                  VisImage, ModelLogging,
+                                                  VisImage, VisMasks,
+                                                  ModelLogging,
                                                   TensorboardPlotCallback)
 from segmentation.unet.dataset.dataset_generator import\
     OneClassSteelDatasetGenerator
@@ -78,7 +79,7 @@ def main():
         models[config['model']['net']](
             config['model']['input_channels'],
             config['model']['model_classes'],
-            is_deconv=True
+            is_deconv=config['model']['use_deconv']
         ),
         device
     )
@@ -146,6 +147,16 @@ def main():
         callbacks.append(
             VisImage(
                 'Image visualisation',
+                config['visualization']['visdom_server'],
+                config['visualization']['visdom_port'],
+                config['visualization']['image']['every'],
+                scale=config['visualization']['image']['scale']
+            )
+        )
+
+        callbacks.append(
+            VisMasks(
+                'Masks visualisation',
                 config['visualization']['visdom_server'],
                 config['visualization']['visdom_port'],
                 config['visualization']['image']['every'],

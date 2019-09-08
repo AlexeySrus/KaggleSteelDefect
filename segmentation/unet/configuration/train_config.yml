@@ -12,10 +12,11 @@ visualization:
   save_historgam: False
 
 model:
-  net: 'unet'
+  net: 'ternausnet16'
   image_size: None
   input_channels: 1
   model_classes: 1
+  use_deconv: True
 
 dataset:
   train_images_path: '../../../data/dataset/train_images/'
@@ -28,15 +29,15 @@ dataset:
   part_without_masks_relatively_with_masks: 0.5
 
 train:
-  optimizer: 'adam'
+  optimizer: 'sgd'
   lr: 0.001
   weight_decay: 0.000000001
 
   loss: 'mse'
   dise_loss:
-    use: True
-    base_loss_coeff: 0.5
-    dice_loss_coeff: 0.5
+    use: False
+    base_loss_coeff: 0
+    dice_loss_coeff: 1
 
   epochs: 500
   batch_size: 16
@@ -48,7 +49,7 @@ train:
     model: '../../../data/weights/segmentation/unet/'
     every: 10
 
-  load: True
+  load: False
   load_optimizer: False
 
   checkpoint:

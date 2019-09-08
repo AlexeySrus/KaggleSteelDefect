@@ -76,12 +76,12 @@ class SegmentationTrainTransform(object):
                                         value=(-10, 10),
                                         per_channel=0.5,
                                         name="Brightness")),
-                                iaa.Sometimes(
-                                    p=0.05,
-                                    then_list=iaa.Emboss(
-                                        alpha=(0.0, 0.5),
-                                        strength=(0.5, 1.2),
-                                        name="Emboss")),
+                                # iaa.Sometimes(
+                                #     p=0.05,
+                                #     then_list=iaa.Emboss(
+                                #         alpha=(0.0, 0.5),
+                                #         strength=(0.5, 1.2),
+                                #         name="Emboss")),
                                 iaa.Sometimes(
                                     p=0.1,
                                     then_list=iaa.Sharpen(
