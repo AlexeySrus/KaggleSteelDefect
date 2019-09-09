@@ -140,7 +140,7 @@ class RangerAdam(Optimizer):
 
     def __setstate__(self, state):
         print("set state called")
-        super(Ranger, self).__setstate__(state)
+        super(RangerAdam, self).__setstate__(state)
 
 
     def step(self, closure=None):

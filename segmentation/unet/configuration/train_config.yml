@@ -51,8 +51,8 @@ train:
     model: '../../../data/weights/segmentation/senet/'
     every: 10
 
-  load: False
-  load_optimizer: False
+  load: True
+  load_optimizer: True
 
   checkpoint:
     use: False
