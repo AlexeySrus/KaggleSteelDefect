@@ -49,3 +49,17 @@ class DiceLoss(torch.nn.Module):
     def forward(self, y_pred, y_true):
         return self.base_weight * self.base_loss(y_pred, y_true) + \
                self.dice_weight * self.dice_loss(y_pred, y_true)
+
+
+class DiceAcc(torch.nn.Module):
+    def __init__(self):
+        super(DiceAcc, self).__init__()
+
+        self.smooth = 1.0
+
+    def forward(self, y_pred, y_true):
+        product = torch.mul(y_pred, y_true)
+        intersection = torch.sum(product)
+        coefficient = (2.0 * intersection + self.smooth) / (
+                torch.sum(y_pred) + torch.sum(y_true) + self.smooth)
+        return coefficient

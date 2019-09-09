@@ -29,8 +29,8 @@ dataset:
   part_without_masks_relatively_with_masks: 0.1
 
 train:
-  optimizer: 'radam'
-  lr: 0.001
+  optimizer: 'sgd'
+  lr: 0.00001
   weight_decay: 0.000000001
 
   loss: 'mse'
@@ -45,14 +45,14 @@ train:
   batch_size: 16
   number_of_processes: 8
 
-  augmentation: True
+  augmentation: False
 
   save:
     model: '../../../data/weights/segmentation/senet/'
     every: 10
 
   load: True
-  load_optimizer: True
+  load_optimizer: False
 
   checkpoint:
     use: False

@@ -13,7 +13,7 @@ from segmentation.unet.utils.callbacks import (SaveModelPerEpoch, VisPlot,
                                                   TensorboardPlotCallback)
 from segmentation.unet.dataset.dataset_generator import\
     OneClassSteelDatasetGenerator
-from segmentation.unet.utils.losses import l2, iou_acc, DiceLoss
+from segmentation.unet.utils.losses import l2, iou_acc, DiceLoss, DiceAcc
 from torch.utils.data import DataLoader
 from segmentation.unet.architectures.unet_model import UNet, MultiUNet
 from segmentation.unet.architectures.ternaus_net import AlbuNet, UNet16
@@ -62,7 +62,7 @@ def main():
 
     acc_functions = {
         'iou': iou_acc,
-        'dice': DiceLoss(0, 1)
+        'dice': DiceAcc()
     }
 
     optimizers = {
