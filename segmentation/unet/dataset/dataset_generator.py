@@ -330,3 +330,25 @@ class OneClassSteelDatasetGenerator(Dataset):
 
         return torch.FloatTensor(image).unsqueeze(0), \
                torch.FloatTensor(channels)[0].unsqueeze(0)
+
+
+class OneClassSteelTestDatasetGenerator(Dataset):
+    def __init__(self, dataset_path):
+        self.dataset_path = dataset_path
+        self.images_names_list = os.listdir(self.dataset_path)
+        self.images_names_list = [fname for fname in self.images_names_list if fname.endswith('.jpg')]
+        self.hh = 00
+
+    def __len__(self):
+        return len(self.images_names_list)
+
+    def __getitem__(self, idx):
+        img_path = os.path.join(
+            self.dataset_path,
+            self.images_names_list[idx]
+        )
+
+        image = np.array(Image.open(img_path).convert('LA'))[..., 0]
+        image = image.astype(np.float32) / 255.0
+
+        return self.images_names_list[idx], torch.FloatTensor(image).unsqueeze(0)
