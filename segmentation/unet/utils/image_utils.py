@@ -108,3 +108,25 @@ def pad_image_to_qadrate(img):
 
     return result, x_pad, y_pad
 
+
+def mask2rle(mask):
+    """
+    Complete predict-length encoding for mask (binary image). It is used to create submission file.
+    :param mask: Mask (binary image).
+    :return: List of form [index count index count ...]
+    """
+    pixels = mask.flatten()
+    pixels[0] = 0
+    pixels[-1] = 0
+    runs = np.where(pixels[1:] != pixels[:-1])[0] + 2
+    runs[1::2] = runs[1::2] - runs[:-1:2]
+    return runs
+
+
+def rle2str(runs):
+    """
+    Convert RLE list to string.
+    :param runs: List of codes.
+    :return: String of rle.
+    """
+    return ' '.join(str(x) for x in runs)
