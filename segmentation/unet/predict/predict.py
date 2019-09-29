@@ -128,7 +128,7 @@ def create_submission():
             data = data.to(device)
             output = model.predict(data)
             df = update_dataframe(df, fnames, output.cpu())
-    df.to_csv(args.submission)
+    df.to_csv(args.submission, index=False)
 
     # with torch.no_grad():
     #     for data, target in validation_data:
