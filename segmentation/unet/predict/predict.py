@@ -1,8 +1,12 @@
-import torch
 import argparse
-import yaml
+
+import numpy as np
 import pandas as pd
-from segmentation.unet.utils.image_utils import rle2str, mask2rle
+import torch
+import yaml
+from tqdm import tqdm
+
+from segmentation.unet.utils.image_utils import rle2str, mask2rle, split_on_tiles_h, combine_tiles
 from segmentation.unet.model.model import Model
 from segmentation.unet.dataset.dataset_generator import\
     OneClassSteelDatasetGenerator, OneClassSteelTestDatasetGenerator
@@ -28,7 +32,7 @@ def parse_args():
 def update_dataframe(df, fnames, mask_batch, columns=['ImageId_ClassId', 'EncodedPixels']):
     for fname, mask in zip(fnames, mask_batch):
         for cls in range(4):
-            subm_fname = '{}_{}'.format(fname, cls)
+            subm_fname = '{}_{}'.format(fname, cls+1)
             row_dict = dict(zip(columns, [subm_fname, rle2str(mask2rle(mask[cls]))]))
             df = df.append(row_dict, ignore_index=True)
     return df
@@ -72,70 +76,27 @@ def create_submission():
     if weight_path is not None:
         model.load(weight_path)
 
-    generated_train_dataset = OneClassSteelDatasetGenerator(
-        dataset_path=config['dataset']['train_images_path'],
-        table_path=config['dataset']['train_table_path'],
-        class_index=config['dataset']['select_class'],
-        part_without_masks_relatively_with_masks=
-        config['dataset']['part_without_masks_relatively_with_masks'],
-        validation=False,
-        validation_part=config['dataset']['validation_part'],
-        augmentation=config['train']['augmentation'],
-        preused_table=None
-    )
-
-    train_data = DataLoader(
-        generated_train_dataset,
-        batch_size=batch_size,
-        num_workers=n_jobs,
-        shuffle=True,
-        drop_last=True
-    )
-
-    validation_data = DataLoader(
-        OneClassSteelDatasetGenerator(
-            dataset_path=config['dataset']['train_images_path'],
-            table_path=config['dataset']['train_table_path'],
-            class_index=config['dataset']['select_class'],
-            part_without_masks_relatively_with_masks=
-            config['dataset']['part_without_masks_relatively_with_masks'],
-            validation=True,
-            validation_part=config['dataset']['validation_part'],
-            preused_table=generated_train_dataset.fixed_table_data
-        ),
-        batch_size=batch_size,
-        num_workers=n_jobs
-    )
-
+    # Each batch consists of 1 image split into 8 tiles.
+    batch_size = 1  # Just available value!
     test_data = DataLoader(
-        OneClassSteelTestDatasetGenerator('../../../data/dataset/test_images/'),
+        OneClassSteelTestDatasetGenerator('../../../data/dataset/test_images/', split_on_tiles=True, tiles_number=8),
         batch_size=batch_size,
         num_workers=n_jobs
     )
 
-    # TODO: Split image on 256x256 tiles and form back
     # TODO: save masks in files (to visualize)
     # TODO: inference on one image
     # ? TODO: inference on folder (or dataset).
 
-    # PROBLEM: result file has size of 2,5 GB
-
-
     df = pd.DataFrame(columns=['ImageId_ClassId', 'EncodedPixels'])
 
     with torch.no_grad():
-        for fnames, data in test_data:
+        for fnames, data in tqdm(test_data):
+            data = torch.cat(tuple(data))
             data = data.to(device)
             output = model.predict(data)
-            df = update_dataframe(df, fnames, output.cpu())
+            df = update_dataframe(df, fnames, [combine_tiles(output.cpu(), 256, 1600)])
     df.to_csv(args.submission, index=False)
-
-    # with torch.no_grad():
-    #     for data, target in validation_data:
-    #         data = data.to(device)
-    #         print(data.shape)
-    #         output = model.predict(data)
-    #         print(output.shape)
 
 
 if __name__ == '__main__':
