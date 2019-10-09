@@ -130,3 +130,28 @@ def rle2str(runs):
     :return: String of rle.
     """
     return ' '.join(str(x) for x in runs)
+
+
+def split_on_tiles_h(img, num_tiles=None):
+    """ Split image into tiles of size (height x height)
+    :param num_tiles: Number of tiles to split by width. If None, the possible lower number will be used.
+    """
+    img = np.array(img)
+    h, w = img.shape
+    if num_tiles is None:
+        num_tiles = int(np.ceil(np.array(img).shape[1] / h))
+    assert num_tiles * h >= w
+    pad_width = num_tiles * h - w
+    padded_img = np.pad(img, ((0, 0), (0, pad_width)))
+    tiles = np.hsplit(padded_img, num_tiles)
+    return tiles
+
+
+def combine_tiles(tiles, src_h, src_w):
+    """ Combine tiles into one image and unpad. """
+    if tiles.ndim == 3:
+        return np.dstack(tiles)[:src_h, :src_w]
+    elif tiles.ndim == 4:
+        return np.dstack(tiles)[:, :src_h, :src_w]
+    else:
+        raise ValueError('Unsupported tiles ndim: {}'.format(tiles.ndim))
