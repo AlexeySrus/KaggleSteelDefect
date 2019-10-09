@@ -10,6 +10,8 @@ from imgaug import augmenters as iaa
 from imgaug import parameters as iap
 from imgaug.augmentables.segmaps import SegmentationMapOnImage
 
+from segmentation.unet.utils.image_utils import split_on_tiles_h
+
 
 def rle2mask(rle, height, width):
     mask = np.zeros(width * height).astype(np.uint8)
@@ -333,11 +335,12 @@ class OneClassSteelDatasetGenerator(Dataset):
 
 
 class OneClassSteelTestDatasetGenerator(Dataset):
-    def __init__(self, dataset_path):
+    def __init__(self, dataset_path, split_on_tiles=False, tiles_number=None):
         self.dataset_path = dataset_path
         self.images_names_list = os.listdir(self.dataset_path)
         self.images_names_list = [fname for fname in self.images_names_list if fname.endswith('.jpg')]
-        self.hh = 00
+        self.split_on_tiles = split_on_tiles
+        self.tiles_num = tiles_number
 
     def __len__(self):
         return len(self.images_names_list)
@@ -350,5 +353,8 @@ class OneClassSteelTestDatasetGenerator(Dataset):
 
         image = np.array(Image.open(img_path).convert('LA'))[..., 0]
         image = image.astype(np.float32) / 255.0
-
-        return self.images_names_list[idx], torch.FloatTensor(image).unsqueeze(0)
+        if self.split_on_tiles:
+            tiles = np.array(split_on_tiles_h(image, self.tiles_num))
+            return self.images_names_list[idx], torch.FloatTensor(tiles).unsqueeze(1)
+        else:
+            return self.images_names_list[idx], torch.FloatTensor(image).unsqueeze(0)
